@@ -34,9 +34,10 @@ class Lecture1Chunker extends DocumentAnnotator {
 
   def extractFeatures(t: Token): TokenFeatures = {
     val f = new TokenFeatures
-    for (tt <- t.prevWindow(3) ++ t.nextWindow(3); dif = t.positionInSection - tt.positionInSection) {
+    for (tt <- t.prevWindow(3) ++ t.nextWindow(3) ++ Seq(t);
+         dif = t.positionInSection - tt.positionInSection) {
       f += s"STRING@$dif=${tt.string}"
-      f += s"STRING@$dif=${tt.posLabel}"
+      f += s"POS@$dif=${tt.posLabel.categoryValue}"
     }
     f
   }
@@ -44,7 +45,8 @@ class Lecture1Chunker extends DocumentAnnotator {
   def process(document: Document) = {
     document.tokens.foreach(t => {
       val feats = extractFeatures(t)
-      t.attr += new ChunkLabel(ChunkLabelDomain.categories(model.classification(feats.value).bestLabelIndex))
+      val label = ChunkLabelDomain.categories(model.classification(feats.value).bestLabelIndex)
+      t.attr += new ChunkLabel(label)
     })
     document
   }
@@ -57,11 +59,19 @@ class Lecture1Chunker extends DocumentAnnotator {
   }
 
   def train(trainSentences: Iterable[Sentence], testSentences: Iterable[Sentence])(implicit rng: scala.util.Random) {
-    val trainLabels = trainSentences.flatMap(s => s.tokens.map(t => new ChunkLabel(if (isInChunk(s, t)) "IN" else "OUT"))).toSeq
-    val testLabels = testSentences.flatMap(s => s.tokens.map(t => new ChunkLabel(if (isInChunk(s, t)) "IN" else "OUT"))).toSeq
-    val trainFeatures = trainSentences.flatMap(s => s.tokens.map(extractFeatures)).toSeq
+    val trainLabels = trainSentences.flatMap(s => {
+      s.tokens.map(t => new ChunkLabel(if (isInChunk(s, t)) "IN" else "OUT"))
+    }).toSeq
+    val testLabels = testSentences.flatMap(s => {
+      s.tokens.map(t => new ChunkLabel(if (isInChunk(s, t)) "IN" else "OUT"))
+    }).toSeq
+    val trainFeatures = trainSentences.flatMap(s => {
+      s.tokens.map(extractFeatures)
+    }).toSeq
     featuresDomain.freeze()
-    val testFeatures = testSentences.flatMap(s => s.tokens.map(extractFeatures)).toSeq
+    val testFeatures = testSentences.flatMap(s => {
+      s.tokens.map(extractFeatures)
+    }).toSeq
     val trainer = new OnlineLinearMultiClassTrainer()
     model = trainer.train(trainLabels, trainFeatures, testLabels, testFeatures)
   }
