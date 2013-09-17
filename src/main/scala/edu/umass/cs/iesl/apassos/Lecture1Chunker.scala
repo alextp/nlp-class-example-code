@@ -1,8 +1,8 @@
 package edu.umass.cs.iesl.apassos
 
 import cc.factorie.app.nlp._
-import cc.factorie.app.nlp.pos.PTBPosLabel
-import cc.factorie.{FeatureVectorVariable, CategoricalTensorDomain, LabeledCategoricalVariable, CategoricalDomain}
+import cc.factorie.app.nlp.pos.PennPosLabel
+import cc.factorie.{FeatureVectorVariable, CategoricalVectorDomain, LabeledCategoricalVariable, CategoricalDomain}
 import cc.factorie.optimize.{LinearMultiClassClassifier, OnlineLinearMultiClassTrainer}
 import scala.annotation.tailrec
 
@@ -21,11 +21,11 @@ class ChunkLabel(target: String) extends LabeledCategoricalVariable[String](targ
 }
 
 class Lecture1Chunker extends DocumentAnnotator {
-  def prereqAttrs = Seq(classOf[PTBPosLabel])
+  def prereqAttrs = Seq(classOf[PennPosLabel])
   def postAttrs = Seq(classOf[ChunkLabel])
   def tokenAnnotationString(token: Token) = token.attr[ChunkLabel].categoryValue
 
-  val featuresDomain = new CategoricalTensorDomain[String] {}
+  val featuresDomain = new CategoricalVectorDomain[String] {}
   class TokenFeatures extends FeatureVectorVariable[String] {
     def domain = featuresDomain
     override def skipNonCategories = true
@@ -87,6 +87,6 @@ object Lecture1Chunker {
     val model = new Lecture1Chunker
     model.train(trainDoc.sentences, testDoc.sentences)
     model.process(testDoc)
-    println(testDoc.owplString(Seq(model.tokenAnnotationString)))
+    println(testDoc.owplString(model))
   }
 }
