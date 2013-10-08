@@ -2,9 +2,10 @@ package edu.umass.cs.iesl.apassos
 
 import cc.factorie.app.nlp._
 import cc.factorie.app.nlp.pos.PennPosLabel
-import cc.factorie.{FeatureVectorVariable, CategoricalVectorDomain, LabeledCategoricalVariable, CategoricalDomain}
-import cc.factorie.optimize.{LinearMultiClassClassifier, OnlineLinearMultiClassTrainer}
 import scala.annotation.tailrec
+import cc.factorie.variable.{FeatureVectorVariable, CategoricalVectorDomain, LabeledCategoricalVariable, CategoricalDomain}
+import cc.factorie.app.classify.{OnlineLinearMultiClassTrainer, LinearMultiClassClassifier}
+import cc.factorie.app.nlp.load.LoadOntonotes5
 
 /**
  * User: apassos

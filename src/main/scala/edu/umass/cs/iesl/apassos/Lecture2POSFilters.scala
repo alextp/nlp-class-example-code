@@ -1,8 +1,10 @@
 package edu.umass.cs.iesl.apassos
 
-import cc.factorie.app.nlp.{TokenSpan, Token, LoadOntonotes5}
+import cc.factorie.app.nlp.{TokenSpan, Token}
 
 import cc.factorie._
+import cc.factorie.app.nlp.load.LoadOntonotes5
+
 /**
  * User: apassos
  * Date: 9/23/13
